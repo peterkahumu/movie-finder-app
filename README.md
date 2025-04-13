@@ -2,7 +2,11 @@
 
 ![Movie Finder App](src/assets/images/hero.png)
 
-### Description
+## Live Site
+
+[Click here to see deployed site](https://peter-search-movie.netlify.app/)
+
+## Description
 The **Movie Finder App** is a web application that enables users to search for movies and view trending films. It integrates with [The Movie Database (TMDB) API](https://www.themoviedb.org/) to fetch movie details and uses [Appwrite](https://appwrite.io/) as the backend for managing trending search data.
 
 ---
@@ -161,4 +165,7 @@ Contributions are welcome! Fork the repository and submit a pull request. For ma
 ---
 
 ## License
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
+This project is licensed under the MIT License. See the [License](license) file for more details.
+
+## Credits
+This project was part of an online tutorial by Javascript Mastery YouTube channel. See the full tutorial [here](https://www.youtube.com/watch?v=dCLhUialKPQ) 

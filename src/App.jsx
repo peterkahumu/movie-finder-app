@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect} from "react";
 import heroImage from './assets/images/hero.png'
 import noMovieImage from './assets/images/no-movie.png'
 import Search from './components/Search.jsx'
