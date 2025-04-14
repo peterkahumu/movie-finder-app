@@ -8,7 +8,7 @@
 
 ## Video Showcase
 
-[YouTube](https://youtu.be/lLCNX5yb3lQ)
+[YouTube](https://youtu.be/GRcRtumPWPk)
 
 ## Description
 The **Movie Finder App** is a web application that enables users to search for movies and view trending films. It integrates with [The Movie Database (TMDB) API](https://www.themoviedb.org/) to fetch movie details and uses [Appwrite](https://appwrite.io/) as the backend for managing trending search data.

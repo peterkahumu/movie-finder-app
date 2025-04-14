@@ -29,17 +29,23 @@ const App = () => {
 
   const [errorMessage, setErrorMessage] = useState(null)
   const [movieList, setMovieList] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+
+  const [isLoadingMovies, setIsLoadingMovies] = useState(false)
+  const [isLoadingTVShows, setIsLoadingTVShows] = useState(false)
+  const [isLoadingTrending, setIsLoadingTrending] = useState(false)
 
   const [trendingMovies, setTrendingMovies] = useState([])
   const [errorTrendingMovies, setErrorTrendingMovies] = useState('')
 
+  const [tvShowsList, setTVShowsList] = useState([])
+  const [errorTVShows, setErrorTVShows] = useState('') 
+
   const fetchMovies = async (query = '') => {
-    setIsLoading(true)
+    setIsLoadingMovies(true)
     setErrorMessage('')
     try {
-      const endpoint = query ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`
+      const endpoint = query.trim() ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+        : `${API_BASE_URL}/trending/movie/day`
 
       const response = await fetch(endpoint, API_OPTIONS);
 
@@ -57,6 +63,7 @@ const App = () => {
       }
 
       setMovieList(data.results || [])
+      console.log(data)
 
       // update the database to record a query if one was provided.
       if (query && data.results.length > 0) {
@@ -67,17 +74,47 @@ const App = () => {
       console.log(`Error fetching the movies ${error}`)
       setErrorMessage("Error fetching the movies. Please try again later.")
     } finally {
-      setIsLoading(false)
+      setIsLoadingMovies(false)
+    }
+  }
+
+  const fetchTvShows = async (query='') => {
+    setIsLoadingTVShows(true)
+    try{
+        const endpoint = query.trim()? `${API_BASE_URL}/search/tv?query=${encodeURIComponent(query)}`
+        :`${API_BASE_URL}/trending/tv/day`
+        const response = await fetch(endpoint, API_OPTIONS)
+
+        if(!response.ok) {
+          throw new Error("Failed to fetch TV shows.")
+        }
+
+        const data = await response.json()
+
+        if (data.Response === 'False'){
+          throw new Error("Cannot fetch movies at the moment. Server seems to be down.")
+        }
+        setTVShowsList(data.results || [])
+
+    } catch(error){
+      console.log(error)
+      setErrorTVShows("There was an error fetching your TV Shows.")
+    } finally{
+      setIsLoadingTVShows(false)
     }
   }
 
   const loadTrendingMovies = async () => {
+    setIsLoadingTrending(true)
     try {
       const movies = await getTrendingMovies()
       setTrendingMovies(movies)
+
     } catch (error) {
       console.log("An error occured: ", error)
       setErrorTrendingMovies("An error occurred while fetching trending movies.")
+    } finally {
+      setIsLoadingTrending(false)
     }
   }
 
@@ -90,6 +127,7 @@ const App = () => {
 
   useEffect(() => {
     fetchMovies(debouncedSearchTerm)
+    fetchTvShows(debouncedSearchTerm)
   }, [debouncedSearchTerm])
 
   return (
@@ -110,32 +148,50 @@ const App = () => {
           
           <section className="trending">
           <h2>Trending Movies</h2>
-          {errorTrendingMovies? (
+          {isLoadingTrending? (
+            <Spinner/>
+          ) : errorTrendingMovies? (
             <p className="text-red-500">{errorTrendingMovies}</p>
-          ): trendingMovies.length > 0 &&(
-            <>              <ul>
+          ): Array.isArray(trendingMovies) && trendingMovies.length > 0 ? (
+            <ul>
                 {trendingMovies.map((movie, index)=> (
                   <li key={movie.$id}>
                     <p>{index + 1}</p>
-                    <img className="text-white" src={movie.poster_url? movie.poster_url : noMovieImage} alt={movie.searchTerm} />
+                    <img className="text-white mt-[40px]" src={movie.poster_url? movie.poster_url : noMovieImage} alt={movie.searchTerm} />
                   </li>
                 ))}
               </ul>
-              </>
+          ): (
+            <p className="text-red-600 mt-[20px] mb-[20px]">No Trending Movies at the moment.</p>
+          )
+        }
+          </section>
 
-          )}
+          <section className="all-shows">
+            <h2 className="mb-[40px]">{debouncedSearchTerm? `Search results for ${debouncedSearchTerm} (TV shows)`: "Popular TV Shows Today" }</h2>
+           {isLoadingTVShows? (
+            <Spinner/>
+           ): errorTVShows? (
+            <p className="text-red-500">{errorTVShows}</p>
+           ):(
+              <ul>
+                {tvShowsList.slice(0, 20).map((tvShow) => (
+                  <MovieCard key={tvShow.id} movie={tvShow} />
+                ))}
+              </ul>
+           )}
+
           </section>
 
           <section className="all-movies">
-            <h2 className="mt-[40px]">Popular Movies Today</h2>
-
-            {isLoading ? (
+          <h2 className="mb-[40px]">{debouncedSearchTerm? `Search results for ${debouncedSearchTerm} (Movies)`: "Popular Movies Today" }</h2>
+            {isLoadingMovies ? (
               <Spinner />
             ) : errorMessage ? (
               <p className="text-red-500">{errorMessage}</p>
             ) : (
               <ul>
-                {movieList.map((movie => (
+                {movieList.slice(0, 20).map((movie => (
                   <MovieCard key={movie.id} movie={movie} />
                 )))}
               </ul>

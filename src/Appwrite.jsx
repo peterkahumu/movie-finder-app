@@ -39,6 +39,7 @@ export const updateSearchCount = async (searchTerm, movie) => {
         }
     } catch(error) {
         console.log(error)
+        throw new Error("Error updating your database.")
     }
     
 }
@@ -46,12 +47,13 @@ export const updateSearchCount = async (searchTerm, movie) => {
 export const getTrendingMovies = async () => {
     try {
         const trendingMovies = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
-            Query.limit(5),
+            Query.limit(10),
             Query.orderDesc('count')
         ])
-        
+
         return trendingMovies.documents
     } catch(error) {
-        console.log(error)   
+        console.log(error) 
+        throw new error("Error updating the database.") 
     }
 }
